@@ -1,8 +1,8 @@
-appdrop (0.1.0-1) noble; urgency=medium
+droppack (0.1.0-1) noble; urgency=medium
 
   * Initial release for Pop!_OS and Ubuntu/Debian.
   * Drag-and-drop AppImage and .deb installer.
   * Desktop entry integration and SQLite registry.
   * Rollback and update management.
 
- -- AppDrop Maintainers <dev@appdrop.local>  Tue, 20 Oct 2026 18:00:00 +0530
+ -- DropPack Maintainers <dev@droppack.local>  Tue, 20 Oct 2026 18:00:00 +0530

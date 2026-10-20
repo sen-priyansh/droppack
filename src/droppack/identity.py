@@ -11,8 +11,8 @@ import logging
 from dataclasses import dataclass
 from enum import Enum
 
-from appdrop.detect import PackageFormat, PackageInfo
-from appdrop.registry import AppRecord, Registry
+from droppack.detect import PackageFormat, PackageInfo
+from droppack.registry import AppRecord, Registry
 
 log = logging.getLogger(__name__)
 

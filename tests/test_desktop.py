@@ -1,10 +1,10 @@
-"""Tests for appdrop.desktop — .desktop file and icon management."""
+"""Tests for droppack.desktop — .desktop file and icon management."""
 
 from __future__ import annotations
 
 from pathlib import Path
 
-from appdrop.desktop import (
+from droppack.desktop import (
     _sanitise,
     applications_dir,
     create_desktop_entry,
@@ -43,7 +43,7 @@ class TestDesktopEntry:
         content = result.read_text()
         assert "Name=Test App" in content
         assert str(exec_path) in content
-        assert "X-AppDrop-Managed=true" in content
+        assert "X-DropPack-Managed=true" in content
 
     def test_desktop_file_location(self, tmp_root: Path):
         exec_path = tmp_root / "app.AppImage"
@@ -80,7 +80,7 @@ class TestIcon:
 
         result = install_icon(source, "TestApp", root_override=tmp_root)
         assert result.exists()
-        assert result.parent == icons_dir(tmp_root) / "appdrop"
+        assert result.parent == icons_dir(tmp_root) / "droppack"
 
     def test_remove_icon(self, tmp_root: Path):
         source = tmp_root / "icon.png"

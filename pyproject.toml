@@ -3,7 +3,7 @@ requires = ["setuptools>=68.0", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "appdrop"
+name = "droppack"
 version = "0.1.0"
 description = "Drag-and-drop installer for AppImage and Debian packages"
 readme = "README.md"
@@ -19,7 +19,7 @@ dev = [
 ]
 
 [project.scripts]
-appdrop = "appdrop.__main__:main"
+droppack = "droppack.__main__:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

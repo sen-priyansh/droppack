@@ -20,11 +20,11 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from appdrop.gui.dialogs import HistoryDialog
-from appdrop.registry import AppRecord
+from droppack.gui.dialogs import HistoryDialog
+from droppack.registry import AppRecord
 
 if TYPE_CHECKING:
-    from appdrop.service import AppService
+    from droppack.service import AppService
 
 log = logging.getLogger(__name__)
 

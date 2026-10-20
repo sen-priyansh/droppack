@@ -1,6 +1,6 @@
 """Application configuration, XDG path resolution, and logging setup.
 
-All managed paths live under an ``appdrop`` subdirectory inside standard
+All managed paths live under an ``droppack`` subdirectory inside standard
 XDG base directories.  Every path helper accepts an optional *root_override*
 so that tests can redirect I/O to a temporary directory.
 """
@@ -11,7 +11,7 @@ import logging
 import os
 from pathlib import Path
 
-APP_NAME = "appdrop"
+APP_NAME = "droppack"
 
 # ---------------------------------------------------------------------------
 # XDG path helpers
@@ -33,17 +33,17 @@ def _xdg_dir(env_var: str, fallback_suffix: str, root_override: Path | None = No
 
 
 def data_dir(root_override: Path | None = None) -> Path:
-    """``$XDG_DATA_HOME/appdrop`` — registry, installed AppImages, backups."""
+    """``$XDG_DATA_HOME/droppack`` — registry, installed AppImages, backups."""
     return _xdg_dir("XDG_DATA_HOME", ".local/share", root_override)
 
 
 def config_dir(root_override: Path | None = None) -> Path:
-    """``$XDG_CONFIG_HOME/appdrop`` — user preferences (future)."""
+    """``$XDG_CONFIG_HOME/droppack`` — user preferences (future)."""
     return _xdg_dir("XDG_CONFIG_HOME", ".config", root_override)
 
 
 def cache_dir(root_override: Path | None = None) -> Path:
-    """``$XDG_CACHE_HOME/appdrop`` — temporary staging area."""
+    """``$XDG_CACHE_HOME/droppack`` — temporary staging area."""
     return _xdg_dir("XDG_CACHE_HOME", ".cache", root_override)
 
 
@@ -105,7 +105,7 @@ def setup_logging(
     level: int = logging.INFO,
     log_to_file: bool = True,
 ) -> logging.Logger:
-    """Configure the root ``appdrop`` logger.
+    """Configure the root ``droppack`` logger.
 
     * Always logs to stderr.
     * Optionally logs to a file inside :func:`log_dir`.
@@ -129,7 +129,7 @@ def setup_logging(
     if log_to_file:
         ld = log_dir(root_override)
         ld.mkdir(parents=True, exist_ok=True)
-        fh = logging.FileHandler(ld / "appdrop.log", encoding="utf-8")
+        fh = logging.FileHandler(ld / "droppack.log", encoding="utf-8")
         fh.setFormatter(formatter)
         logger.addHandler(fh)
 

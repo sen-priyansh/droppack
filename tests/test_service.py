@@ -1,4 +1,4 @@
-"""Tests for appdrop.service — orchestration layer."""
+"""Tests for droppack.service — orchestration layer."""
 
 from __future__ import annotations
 
@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from appdrop.detect import PackageFormat
-from appdrop.service import AppService, DropAction, QueueItem
+from droppack.detect import PackageFormat
+from droppack.service import AppService, DropAction, QueueItem
 
 
 # ---------------------------------------------------------------------------
@@ -209,13 +209,13 @@ class TestManagement:
 
 class TestQueueItem:
     def test_can_proceed_true(self, tmp_path: Path):
-        from appdrop.detect import PackageInfo
+        from droppack.detect import PackageInfo
         info = PackageInfo(filepath=tmp_path / "a.deb", format=PackageFormat.DEB)
         item = QueueItem(info=info, action=DropAction.INSTALL)
         assert item.can_proceed
 
     def test_can_proceed_false_on_error(self, tmp_path: Path):
-        from appdrop.detect import PackageInfo
+        from droppack.detect import PackageInfo
         info = PackageInfo(
             filepath=tmp_path / "a.deb",
             format=PackageFormat.DEB,
@@ -225,13 +225,13 @@ class TestQueueItem:
         assert not item.can_proceed
 
     def test_can_proceed_false_on_unknown(self, tmp_path: Path):
-        from appdrop.detect import PackageInfo
+        from droppack.detect import PackageInfo
         info = PackageInfo(filepath=tmp_path / "x.bin", format=PackageFormat.UNKNOWN)
         item = QueueItem(info=info, action=DropAction.UNKNOWN)
         assert not item.can_proceed
 
     def test_display_action_update(self, tmp_path: Path):
-        from appdrop.detect import PackageInfo
+        from droppack.detect import PackageInfo
         info = PackageInfo(filepath=tmp_path / "a.AppImage", format=PackageFormat.APPIMAGE, version="2.0")
         item = QueueItem(info=info, action=DropAction.UPDATE, existing_version="1.0")
         assert "1.0" in item.display_action

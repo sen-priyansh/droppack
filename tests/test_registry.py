@@ -1,4 +1,4 @@
-"""Tests for appdrop.registry — SQLite-backed application registry."""
+"""Tests for droppack.registry — SQLite-backed application registry."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from appdrop.registry import AppRecord, Registry, VersionRecord
+from droppack.registry import AppRecord, Registry, VersionRecord
 
 
 @pytest.fixture()
@@ -41,7 +41,7 @@ class TestConnection:
     def test_open_creates_db(self, tmp_root: Path):
         reg = Registry(root_override=tmp_root)
         reg.open()
-        from appdrop.config import registry_path
+        from droppack.config import registry_path
         assert registry_path(tmp_root).exists()
         reg.close()
 

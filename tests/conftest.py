@@ -1,4 +1,4 @@
-"""Shared pytest fixtures for AppDrop tests."""
+"""Shared pytest fixtures for DropPack tests."""
 
 from __future__ import annotations
 
@@ -20,12 +20,12 @@ def tmp_root(tmp_path: Path) -> Path:
 
 @pytest.fixture(autouse=True)
 def _reset_logger():
-    """Remove handlers from the appdrop logger between tests.
+    """Remove handlers from the droppack logger between tests.
 
     This prevents ``setup_logging`` from thinking it has already been
     configured and skipping handler creation.
     """
-    logger = logging.getLogger("appdrop")
+    logger = logging.getLogger("droppack")
     yield
     logger.handlers.clear()
     logger.setLevel(logging.WARNING)

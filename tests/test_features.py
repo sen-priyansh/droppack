@@ -13,15 +13,15 @@ os.environ["QT_QPA_PLATFORM"] = "offscreen"
 
 from PySide6.QtWidgets import QApplication
 
-from appdrop.__main__ import main
-from appdrop.backends.appimage import AppImageBackend
-from appdrop.desktop import install_icon_bytes
-from appdrop.detect import PackageFormat, PackageInfo, detect
-from appdrop.gui.drop_zone import DropZone
-from appdrop.gui.installed_view import InstalledView
-from appdrop.gui.main_window import MainWindow
-from appdrop.registry import AppRecord, Registry, VersionRecord
-from appdrop.service import AppService
+from droppack.__main__ import main
+from droppack.backends.appimage import AppImageBackend
+from droppack.desktop import install_icon_bytes
+from droppack.detect import PackageFormat, PackageInfo, detect
+from droppack.gui.drop_zone import DropZone
+from droppack.gui.installed_view import InstalledView
+from droppack.gui.main_window import MainWindow
+from droppack.registry import AppRecord, Registry, VersionRecord
+from droppack.service import AppService
 
 
 @pytest.fixture(scope="session")
@@ -59,13 +59,13 @@ class TestCLIAndArguments:
         ret = main(["--version"])
         assert ret == 0
         captured = capsys.readouterr()
-        assert "AppDrop 0.1.0" in captured.out
+        assert "DropPack 0.1.0" in captured.out
 
     def test_help_flag(self, capsys):
         ret = main(["--help"])
         assert ret == 0
         captured = capsys.readouterr()
-        assert "Usage: appdrop" in captured.out
+        assert "Usage: droppack" in captured.out
 
     def test_main_window_loads_initial_files(self, qapp, tmp_root: Path, tmp_path: Path):
         f = _make_appimage(tmp_path / "App-1.0.AppImage")

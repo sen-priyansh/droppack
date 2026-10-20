@@ -8,13 +8,13 @@ from pathlib import Path
 
 import pytest
 
-from appdrop.backends.appimage import AppImageBackend
-from appdrop.backends.deb import DebBackend
-from appdrop.config import apps_dir, backups_dir
-from appdrop.detect import PackageFormat, PackageInfo, detect
-from appdrop.identity import IdentityResolver
-from appdrop.registry import Registry
-from appdrop.service import AppService, DropAction
+from droppack.backends.appimage import AppImageBackend
+from droppack.backends.deb import DebBackend
+from droppack.config import apps_dir, backups_dir
+from droppack.detect import PackageFormat, PackageInfo, detect
+from droppack.identity import IdentityResolver
+from droppack.registry import Registry
+from droppack.service import AppService, DropAction
 
 
 def _make_appimage(path: Path, version: str = "1.0", payload: bytes = b"binary-content") -> Path:
@@ -155,16 +155,16 @@ class TestEdgeCasesAndCorruptFiles:
 
 
 class TestSecurityAudit:
-    def test_appdrop_deb_package_inspection(self):
-        """Verify AppDrop's own built Debian package can be inspected correctly."""
-        deb_path = Path(__file__).resolve().parent.parent / "dist" / "appdrop_0.1.0_all.deb"
+    def test_droppack_deb_package_inspection(self):
+        """Verify DropPack's own built Debian package can be inspected correctly."""
+        deb_path = Path(__file__).resolve().parent.parent / "dist" / "droppack_0.1.0_all.deb"
         if not deb_path.exists():
             from scripts.build_deb import build_deb
             deb_path = build_deb()
 
         info = detect(deb_path)
         assert info.format == PackageFormat.DEB
-        assert info.name == "appdrop"
+        assert info.name == "droppack"
         assert info.version == "0.1.0"
         assert info.architecture == "all"
         assert info.error is None
@@ -180,7 +180,7 @@ class TestSecurityAudit:
         assert matches == [], f"Found shell=True in: {matches}"
 
     def test_path_traversal_sanitisation(self, tmp_root: Path):
-        from appdrop.desktop import _sanitise
+        from droppack.desktop import _sanitise
         # Characters like ../, ;, |, &, $, ` must be sanitised
         assert ".." not in _sanitise("../../etc/passwd")
         assert ";" not in _sanitise("my; rm -rf /")
@@ -192,7 +192,7 @@ class TestSecurityAudit:
         reg = Registry(root_override=tmp_root)
         reg.open()
         try:
-            from appdrop.registry import AppRecord
+            from droppack.registry import AppRecord
             system_file = tmp_root / "system_important_file"
             system_file.write_text("critical")
 

@@ -1,4 +1,4 @@
-"""Tests for appdrop.detect — format detection and metadata extraction."""
+"""Tests for droppack.detect — format detection and metadata extraction."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from appdrop.detect import (
+from droppack.detect import (
     PackageFormat,
     PackageInfo,
     _parse_appimage_filename,

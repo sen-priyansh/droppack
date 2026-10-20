@@ -16,17 +16,17 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from appdrop.gui.dialogs import ConfirmDialog, ErrorDialog
-from appdrop.gui.drop_zone import DropZone
-from appdrop.gui.installed_view import InstalledView
-from appdrop.gui.queue_view import QueueView
-from appdrop.service import AppService
+from droppack.gui.dialogs import ConfirmDialog, ErrorDialog
+from droppack.gui.drop_zone import DropZone
+from droppack.gui.installed_view import InstalledView
+from droppack.gui.queue_view import QueueView
+from droppack.service import AppService
 
 log = logging.getLogger(__name__)
 
 
 class MainWindow(QMainWindow):
-    """Top-level window for AppDrop."""
+    """Top-level window for DropPack."""
 
     def __init__(
         self,
@@ -37,7 +37,7 @@ class MainWindow(QMainWindow):
     ) -> None:
         super().__init__(parent)
         self._service = service or AppService()
-        self.setWindowTitle("AppDrop")
+        self.setWindowTitle("DropPack")
         self.setMinimumSize(700, 500)
         self._setup_ui()
         self._connect_signals()

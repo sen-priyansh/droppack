@@ -13,7 +13,7 @@ import subprocess
 import textwrap
 from pathlib import Path
 
-from appdrop.config import APP_NAME
+from droppack.config import APP_NAME
 
 log = logging.getLogger(__name__)
 
@@ -62,10 +62,10 @@ def create_desktop_entry(
         Name={app_name}
         Exec={exec_path}
         Icon={icon_value}
-        Comment={comment or f'{app_name} (managed by AppDrop)'}
+        Comment={comment or f'{app_name} (managed by DropPack)'}
         Categories={categories}
         Terminal=false
-        X-AppDrop-Managed=true
+        X-DropPack-Managed=true
     """)
 
     desktop_path.write_text(content, encoding="utf-8")

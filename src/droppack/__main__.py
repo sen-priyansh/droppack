@@ -1,22 +1,22 @@
-"""Entry point for ``python -m appdrop``."""
+"""Entry point for ``python -m droppack``."""
 
 import sys
 from pathlib import Path
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Launch the AppDrop application."""
+    """Launch the DropPack application."""
     if argv is None:
         argv = sys.argv[1:]
 
     # Handle quick flags
     if "--version" in argv or "-v" in argv:
-        import appdrop
-        print(f"AppDrop {appdrop.__version__}")
+        import droppack
+        print(f"DropPack {droppack.__version__}")
         return 0
 
     if "--help" in argv or "-h" in argv:
-        print("Usage: appdrop [OPTIONS] [FILE...]")
+        print("Usage: droppack [OPTIONS] [FILE...]")
         print("\nInstall and manage AppImage and Debian packages via drag-and-drop.")
         print("\nArguments:")
         print("  FILE...        Optional .AppImage or .deb file(s) to open directly")
@@ -25,7 +25,7 @@ def main(argv: list[str] | None = None) -> int:
         print("  -h, --help     Show this help message")
         return 0
 
-    from appdrop.config import setup_logging
+    from droppack.config import setup_logging
 
     setup_logging()
 
@@ -39,11 +39,11 @@ def main(argv: list[str] | None = None) -> int:
 
     from PySide6.QtWidgets import QApplication
 
-    from appdrop.gui.main_window import MainWindow
-    from appdrop.service import AppService
+    from droppack.gui.main_window import MainWindow
+    from droppack.service import AppService
 
     app = QApplication(sys.argv[:1])
-    app.setApplicationName("AppDrop")
+    app.setApplicationName("DropPack")
     app.setApplicationVersion("0.1.0")
 
     service = AppService()

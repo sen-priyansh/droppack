@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a standard Debian package (.deb) for AppDrop."""
+"""Build a standard Debian package (.deb) for DropPack."""
 
 from __future__ import annotations
 
@@ -11,18 +11,18 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SRC_DIR = REPO_ROOT / "src" / "appdrop"
+SRC_DIR = REPO_ROOT / "src" / "droppack"
 DATA_DIR = REPO_ROOT / "data"
 BUILD_DIR = REPO_ROOT / "build" / "deb"
 DIST_DIR = REPO_ROOT / "dist"
 
 VERSION = "0.1.0"
-PACKAGE_NAME = f"appdrop_{VERSION}_all.deb"
+PACKAGE_NAME = f"droppack_{VERSION}_all.deb"
 
 
 def build_deb() -> Path:
     """Stage files and build the Debian package using dpkg-deb."""
-    print("Building AppDrop Debian package...")
+    print("Building DropPack Debian package...")
 
     if BUILD_DIR.exists():
         shutil.rmtree(BUILD_DIR)
@@ -32,22 +32,22 @@ def build_deb() -> Path:
     # 1. Staging directory layout
     debian_dir = BUILD_DIR / "DEBIAN"
     bin_dir = BUILD_DIR / "usr" / "bin"
-    python_dir = BUILD_DIR / "usr" / "lib" / "python3" / "dist-packages" / "appdrop"
+    python_dir = BUILD_DIR / "usr" / "lib" / "python3" / "dist-packages" / "droppack"
     apps_dir = BUILD_DIR / "usr" / "share" / "applications"
 
     for d in (debian_dir, bin_dir, python_dir, apps_dir):
         d.mkdir(parents=True)
 
     # 2. Control file
-    control_content = f"""Package: appdrop
+    control_content = f"""Package: droppack
 Version: {VERSION}
 Section: utils
 Priority: optional
 Architecture: all
-Maintainer: AppDrop Maintainers <dev@appdrop.local>
+Maintainer: DropPack Maintainers <dev@droppack.local>
 Depends: python3 (>= 3.10), python3-pyside6, dpkg, pkexec
 Description: Drag-and-drop installer for AppImage and Debian packages
- AppDrop is a simple Linux desktop utility that installs and manages
+ DropPack is a simple Linux desktop utility that installs and manages
  AppImage and Debian packages through drag-and-drop.
  .
  Target distributions include Pop!_OS and Ubuntu/Debian-based desktops.
@@ -61,11 +61,11 @@ Description: Drag-and-drop installer for AppImage and Debian packages
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(item, dest)
 
-    # 4. Create launcher executable in /usr/bin/appdrop
-    launcher = bin_dir / "appdrop"
+    # 4. Create launcher executable in /usr/bin/droppack
+    launcher = bin_dir / "droppack"
     launcher_content = """#!/usr/bin/env python3
 import sys
-from appdrop.__main__ import main
+from droppack.__main__ import main
 if __name__ == "__main__":
     sys.exit(main())
 """
@@ -73,9 +73,9 @@ if __name__ == "__main__":
     launcher.chmod(launcher.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH | 0o755)
 
     # 5. Desktop entry
-    desktop_src = DATA_DIR / "appdrop.desktop"
+    desktop_src = DATA_DIR / "droppack.desktop"
     if desktop_src.exists():
-        shutil.copy2(desktop_src, apps_dir / "appdrop.desktop")
+        shutil.copy2(desktop_src, apps_dir / "droppack.desktop")
 
     # 6. Run dpkg-deb -b
     out_deb = DIST_DIR / PACKAGE_NAME

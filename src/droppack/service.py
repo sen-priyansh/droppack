@@ -12,17 +12,17 @@ import logging
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from appdrop.backends.appimage import AppImageBackend, InstallResult
-from appdrop.backends.deb import CommandRunner, DebBackend, DebInstallResult
-from appdrop.detect import PackageFormat, PackageInfo, detect
-from appdrop.identity import Confidence, IdentityResolver
-from appdrop.registry import Registry
+from droppack.backends.appimage import AppImageBackend, InstallResult
+from droppack.backends.deb import CommandRunner, DebBackend, DebInstallResult
+from droppack.detect import PackageFormat, PackageInfo, detect
+from droppack.identity import Confidence, IdentityResolver
+from droppack.registry import Registry
 
 log = logging.getLogger(__name__)
 
 
 class DropAction(enum.Enum):
-    """What AppDrop proposes to do with a dropped file."""
+    """What DropPack proposes to do with a dropped file."""
 
     INSTALL = "Install"
     UPDATE = "Update"

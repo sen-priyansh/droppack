@@ -1,4 +1,4 @@
-"""Tests for appdrop.backends.deb — Debian package backend."""
+"""Tests for droppack.backends.deb — Debian package backend."""
 
 from __future__ import annotations
 
@@ -9,9 +9,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from appdrop.backends.deb import DebBackend, DebInstalledInfo, DebInstallResult
-from appdrop.detect import PackageFormat, PackageInfo
-from appdrop.registry import AppRecord, Registry
+from droppack.backends.deb import DebBackend, DebInstalledInfo, DebInstallResult
+from droppack.detect import PackageFormat, PackageInfo
+from droppack.registry import AppRecord, Registry
 
 
 @pytest.fixture()

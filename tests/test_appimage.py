@@ -1,4 +1,4 @@
-"""Tests for appdrop.backends.appimage — AppImage install, update, rollback, uninstall."""
+"""Tests for droppack.backends.appimage — AppImage install, update, rollback, uninstall."""
 
 from __future__ import annotations
 
@@ -7,10 +7,10 @@ from pathlib import Path
 
 import pytest
 
-from appdrop.backends.appimage import AppImageBackend, InstallResult
-from appdrop.config import apps_dir, backups_dir
-from appdrop.detect import PackageFormat, PackageInfo
-from appdrop.registry import AppRecord, Registry
+from droppack.backends.appimage import AppImageBackend, InstallResult
+from droppack.config import apps_dir, backups_dir
+from droppack.detect import PackageFormat, PackageInfo
+from droppack.registry import AppRecord, Registry
 
 
 @pytest.fixture()

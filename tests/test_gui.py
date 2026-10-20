@@ -15,14 +15,14 @@ from PySide6.QtCore import QMimeData, QPoint, QPointF, Qt, QUrl
 from PySide6.QtGui import QDragEnterEvent, QDropEvent
 from PySide6.QtWidgets import QApplication
 
-from appdrop.detect import PackageFormat, PackageInfo
-from appdrop.gui.dialogs import ConfirmDialog, ErrorDialog, HistoryDialog
-from appdrop.gui.drop_zone import DropZone
-from appdrop.gui.installed_view import InstalledView
-from appdrop.gui.main_window import MainWindow
-from appdrop.gui.queue_view import QueueView
-from appdrop.registry import AppRecord, Registry, VersionRecord
-from appdrop.service import AppService, DropAction, QueueItem
+from droppack.detect import PackageFormat, PackageInfo
+from droppack.gui.dialogs import ConfirmDialog, ErrorDialog, HistoryDialog
+from droppack.gui.drop_zone import DropZone
+from droppack.gui.installed_view import InstalledView
+from droppack.gui.main_window import MainWindow
+from droppack.gui.queue_view import QueueView
+from droppack.registry import AppRecord, Registry, VersionRecord
+from droppack.service import AppService, DropAction, QueueItem
 
 
 @pytest.fixture(scope="session")
@@ -229,7 +229,7 @@ class TestDialogs:
 class TestMainWindow:
     def test_init_and_tabs(self, qapp, service: AppService):
         win = MainWindow(service=service)
-        assert win.windowTitle() == "AppDrop"
+        assert win.windowTitle() == "DropPack"
         assert win._tabs.count() == 2
 
         # Switch to Installed Apps tab

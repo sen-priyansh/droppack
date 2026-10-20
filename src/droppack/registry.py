@@ -1,6 +1,6 @@
 """SQLite-backed registry for installed applications.
 
-Stores metadata about every AppImage and Debian package managed by AppDrop,
+Stores metadata about every AppImage and Debian package managed by DropPack,
 including version history for rollback support.
 """
 
@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
-from appdrop.config import registry_path
+from droppack.config import registry_path
 
 log = logging.getLogger(__name__)
 

@@ -1,5 +1,5 @@
 #!/usr/bin/make -f
-export PYBUILD_NAME=appdrop
+export PYBUILD_NAME=droppack
 
 %:
 	dh $@ --with python3 --buildsystem=pybuild

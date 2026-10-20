@@ -15,8 +15,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Optional
 
-from appdrop.detect import PackageInfo
-from appdrop.registry import AppRecord, Registry, VersionRecord
+from droppack.detect import PackageInfo
+from droppack.registry import AppRecord, Registry, VersionRecord
 
 log = logging.getLogger(__name__)
 
@@ -258,7 +258,7 @@ class DebBackend:
     # ------------------------------------------------------------------
 
     def uninstall(self, app_id: int) -> DebInstallResult:
-        """Uninstall a system Debian package managed by AppDrop."""
+        """Uninstall a system Debian package managed by DropPack."""
         app = self._registry.get_app(app_id)
         if app is None:
             return DebInstallResult(success=False, error="Application not found in registry")

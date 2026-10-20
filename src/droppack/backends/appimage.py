@@ -1,8 +1,8 @@
 """AppImage backend — install, update, rollback, and uninstall.
 
 All operations are user-level (no root required).  AppImages are stored
-in ``~/.local/share/appdrop/apps/``, and previous versions are kept in
-``~/.local/share/appdrop/backups/`` until explicitly purged.
+in ``~/.local/share/droppack/apps/``, and previous versions are kept in
+``~/.local/share/droppack/backups/`` until explicitly purged.
 """
 
 from __future__ import annotations
@@ -14,16 +14,16 @@ import stat
 from dataclasses import dataclass
 from pathlib import Path
 
-from appdrop.config import apps_dir, backups_dir, cache_dir
-from appdrop.desktop import (
+from droppack.config import apps_dir, backups_dir, cache_dir
+from droppack.desktop import (
     create_desktop_entry,
     install_icon,
     install_icon_bytes,
     remove_desktop_entry,
     remove_icon,
 )
-from appdrop.detect import PackageInfo
-from appdrop.registry import AppRecord, Registry, VersionRecord
+from droppack.detect import PackageInfo
+from droppack.registry import AppRecord, Registry, VersionRecord
 
 log = logging.getLogger(__name__)
 

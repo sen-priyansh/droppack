@@ -1,4 +1,4 @@
-"""Tests for appdrop.identity — identity resolution."""
+"""Tests for droppack.identity — identity resolution."""
 
 from __future__ import annotations
 
@@ -6,9 +6,9 @@ from pathlib import Path
 
 import pytest
 
-from appdrop.detect import PackageFormat, PackageInfo
-from appdrop.identity import Confidence, IdentityMatch, IdentityResolver, _normalise
-from appdrop.registry import AppRecord, Registry
+from droppack.detect import PackageFormat, PackageInfo
+from droppack.identity import Confidence, IdentityMatch, IdentityResolver, _normalise
+from droppack.registry import AppRecord, Registry
 
 
 @pytest.fixture()

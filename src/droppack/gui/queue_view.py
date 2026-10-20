@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (
 )
 
 if TYPE_CHECKING:
-    from appdrop.service import QueueItem
+    from droppack.service import QueueItem
 
 log = logging.getLogger(__name__)
 

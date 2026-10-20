@@ -1,4 +1,4 @@
-"""Tests for appdrop.config — paths, directory creation, and logging."""
+"""Tests for droppack.config — paths, directory creation, and logging."""
 
 from __future__ import annotations
 
@@ -6,8 +6,8 @@ import logging
 import re
 from pathlib import Path
 
-import appdrop
-from appdrop.config import (
+import droppack
+from droppack.config import (
     APP_NAME,
     apps_dir,
     backups_dir,
@@ -129,7 +129,7 @@ class TestLogging:
     def test_log_file_created(self, tmp_root: Path):
         logger = setup_logging(root_override=tmp_root)
         logger.info("test message")
-        log_file = log_dir(tmp_root) / "appdrop.log"
+        log_file = log_dir(tmp_root) / "droppack.log"
         assert log_file.exists()
         content = log_file.read_text()
         assert "test message" in content
@@ -151,8 +151,8 @@ class TestLogging:
 
 class TestVersion:
     def test_version_is_string(self):
-        assert isinstance(appdrop.__version__, str)
+        assert isinstance(droppack.__version__, str)
 
     def test_version_is_semver(self):
         # Loose semver: major.minor.patch with optional pre-release
-        assert re.match(r"^\d+\.\d+\.\d+", appdrop.__version__)
+        assert re.match(r"^\d+\.\d+\.\d+", droppack.__version__)
