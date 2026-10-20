@@ -158,3 +158,46 @@ class ErrorDialog(QDialog):
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
         buttons.accepted.connect(self.accept)
         layout.addWidget(buttons)
+
+
+class HistoryDialog(QDialog):
+    """Display version and action history for an application."""
+
+    def __init__(
+        self,
+        app_name: str,
+        history: list,
+        parent: QWidget | None = None,
+    ) -> None:
+        super().__init__(parent)
+        self.setWindowTitle(f"History — {app_name}")
+        self.setMinimumWidth(560)
+        self.setMinimumHeight(320)
+        self._history = history
+        self._setup_ui()
+
+    def _setup_ui(self) -> None:
+        from PySide6.QtWidgets import QTableWidget, QTableWidgetItem, QHeaderView, QAbstractItemView
+
+        layout = QVBoxLayout(self)
+
+        columns = ("Date / Time", "Action", "Version", "Notes")
+        table = QTableWidget(len(self._history), len(columns))
+        table.setHorizontalHeaderLabels(columns)
+        table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.Stretch)
+        table.setAlternatingRowColors(True)
+
+        for row, item in enumerate(self._history):
+            date_str = item.created_at[:19].replace("T", " ") if hasattr(item, "created_at") else ""
+            table.setItem(row, 0, QTableWidgetItem(date_str))
+            table.setItem(row, 1, QTableWidgetItem(getattr(item, "action", "").upper()))
+            table.setItem(row, 2, QTableWidgetItem(getattr(item, "version", "") or "—"))
+            table.setItem(row, 3, QTableWidgetItem(getattr(item, "notes", "") or ""))
+
+        layout.addWidget(table)
+
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+        buttons.rejected.connect(self.accept)
+        layout.addWidget(buttons)

@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
 
 from appdrop.gui.dialogs import ConfirmDialog, ErrorDialog
 from appdrop.gui.drop_zone import DropZone
+from appdrop.gui.installed_view import InstalledView
 from appdrop.gui.queue_view import QueueView
 from appdrop.service import AppService
 
@@ -66,14 +67,9 @@ class MainWindow(QMainWindow):
         install_layout.addWidget(splitter)
         self._tabs.addTab(install_tab, "Install")
 
-        # --- Installed Apps tab (placeholder for Milestone 6) ---
-        installed_tab = QWidget()
-        installed_layout = QVBoxLayout(installed_tab)
-        from PySide6.QtWidgets import QLabel
-        placeholder = QLabel("Installed applications will appear here.")
-        placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        installed_layout.addWidget(placeholder)
-        self._tabs.addTab(installed_tab, "Installed Apps")
+        # --- Installed Apps tab ---
+        self._installed_view = InstalledView(self._service)
+        self._tabs.addTab(self._installed_view, "Installed Apps")
 
         layout.addWidget(self._tabs)
 
@@ -85,6 +81,47 @@ class MainWindow(QMainWindow):
     def _connect_signals(self) -> None:
         self._drop_zone.files_dropped.connect(self._on_files_dropped)
         self._queue_view.proceed_requested.connect(self._on_proceed)
+        self._tabs.currentChanged.connect(self._on_tab_changed)
+        self._installed_view.uninstall_requested.connect(self._on_uninstall_app)
+        self._installed_view.rollback_requested.connect(self._on_rollback_app)
+
+    def _on_tab_changed(self, index: int) -> None:
+        if index == 1:
+            self._installed_view.reload_data()
+
+    def _on_uninstall_app(self, app_id: int) -> None:
+        try:
+            result = self._service.uninstall(app_id)
+            if result.success:
+                self._status_bar.showMessage("Application uninstalled successfully", 5000)
+                self._installed_view.reload_data()
+            else:
+                ErrorDialog(
+                    "Uninstall Failed",
+                    "Could not uninstall application.",
+                    result.error,
+                    parent=self,
+                ).exec()
+        except Exception as exc:
+            log.exception("Uninstall exception")
+            ErrorDialog("Uninstall Error", "An unexpected error occurred.", str(exc), parent=self).exec()
+
+    def _on_rollback_app(self, app_id: int) -> None:
+        try:
+            result = self._service.rollback(app_id)
+            if result.success:
+                self._status_bar.showMessage("Application rolled back successfully", 5000)
+                self._installed_view.reload_data()
+            else:
+                ErrorDialog(
+                    "Rollback Failed",
+                    "Could not roll back application.",
+                    result.error,
+                    parent=self,
+                ).exec()
+        except Exception as exc:
+            log.exception("Rollback exception")
+            ErrorDialog("Rollback Error", "An unexpected error occurred.", str(exc), parent=self).exec()
 
     # ------------------------------------------------------------------
     # Slots
@@ -139,6 +176,7 @@ class MainWindow(QMainWindow):
             for i, item in enumerate(results):
                 status = "✓ Done" if not item.info.error else f"✗ {item.info.error}"
                 self._queue_view.update_item_status(i, status)
+            self._installed_view.reload_data()
         except Exception as exc:
             log.exception("Error executing queue")
             ErrorDialog(
