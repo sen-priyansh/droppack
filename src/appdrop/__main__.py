@@ -9,9 +9,20 @@ def main() -> int:
 
     setup_logging()
 
-    # GUI launch will be implemented in Milestone 2.
-    print("AppDrop is not yet ready to launch. Run pytest to verify the setup.")
-    return 0
+    from PySide6.QtWidgets import QApplication
+
+    from appdrop.gui.main_window import MainWindow
+    from appdrop.service import AppService
+
+    app = QApplication(sys.argv)
+    app.setApplicationName("AppDrop")
+    app.setApplicationVersion("0.1.0")
+
+    service = AppService()
+    window = MainWindow(service=service)
+    window.show()
+
+    return app.exec()
 
 
 if __name__ == "__main__":
