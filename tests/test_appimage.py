@@ -190,7 +190,7 @@ class TestRollback:
         # Verify version reverted
         reverted = registry.get_app(app_id)
         assert reverted is not None
-        assert reverted.version == "2.0"  # backup version recorded at update time
+        assert reverted.version == "1.0"
 
     def test_rollback_no_backup(self, backend: AppImageBackend, registry: Registry, tmp_path: Path):
         src = _make_fake_appimage(tmp_path / "App.AppImage")

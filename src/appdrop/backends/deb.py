@@ -2,7 +2,7 @@
 
 Performs safe metadata inspection, downgrade detection, and privileged
 APT operations via pkexec.  Never executes dropped packages during
-inspection or uses shell=True.
+inspection or uses a shell interpreter.
 """
 
 from __future__ import annotations

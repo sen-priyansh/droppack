@@ -204,7 +204,7 @@ class AppImageBackend:
 
         self._registry.add_version(VersionRecord(
             app_id=existing.id,  # type: ignore[arg-type]
-            version=info.version,
+            version=old_version,
             backup_path=str(backup_path) if backup_path.exists() else None,
             action="update",
             notes=f"Updated from {old_version or '?'} to {info.version or '?'}",

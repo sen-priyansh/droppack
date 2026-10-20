@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=AppDrop
+GenericName=Package Manager
+Comment=Install and manage AppImage and Debian packages via drag-and-drop
+Exec=appdrop
+Icon=appdrop
+Terminal=false
+Type=Application
+Categories=System;PackageManager;Utility;
+Keywords=appimage;deb;package;installer;
+MimeType=application/vnd.appimage;application/vnd.debian.binary-package;
+StartupNotify=true
