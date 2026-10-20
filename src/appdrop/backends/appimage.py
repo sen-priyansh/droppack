@@ -18,6 +18,7 @@ from appdrop.config import apps_dir, backups_dir, cache_dir
 from appdrop.desktop import (
     create_desktop_entry,
     install_icon,
+    install_icon_bytes,
     remove_desktop_entry,
     remove_icon,
 )
@@ -96,10 +97,21 @@ class AppImageBackend:
                 staging_path.unlink()
             return InstallResult(success=False, error=str(exc))
 
+        # Icon handling
+        icon_path = None
+        if info.icon_bytes:
+            icon_path = install_icon_bytes(
+                info.icon_bytes,
+                info.icon_format or "png",
+                app_name,
+                root_override=self._root,
+            )
+
         # Desktop entry
         desktop_path = create_desktop_entry(
             app_name=app_name,
             exec_path=dest,
+            icon_path=icon_path,
             comment=info.description,
             root_override=self._root,
         )
@@ -114,6 +126,7 @@ class AppImageBackend:
             description=info.description,
             install_path=str(dest),
             desktop_entry=str(desktop_path),
+            icon_path=str(icon_path) if icon_path else None,
             status="installed",
         )
         app_id = self._registry.add_app(rec)
@@ -186,10 +199,21 @@ class AppImageBackend:
                 staging_path.unlink()
             return InstallResult(success=False, error=str(exc))
 
+        # Update icon if extracted
+        icon_path = Path(existing.icon_path) if existing.icon_path else None
+        if info.icon_bytes:
+            icon_path = install_icon_bytes(
+                info.icon_bytes,
+                info.icon_format or "png",
+                existing.display_name or existing.name,
+                root_override=self._root,
+            )
+
         # Update desktop entry
         desktop_path = create_desktop_entry(
             app_name=existing.display_name or existing.name,
             exec_path=dest,
+            icon_path=icon_path,
             comment=info.description or existing.description,
             root_override=self._root,
         )
@@ -199,6 +223,8 @@ class AppImageBackend:
         existing.version = info.version
         existing.install_path = str(dest)
         existing.desktop_entry = str(desktop_path)
+        if icon_path:
+            existing.icon_path = str(icon_path)
         existing.description = info.description or existing.description
         self._registry.update_app(existing)
 
@@ -209,6 +235,10 @@ class AppImageBackend:
             action="update",
             notes=f"Updated from {old_version or '?'} to {info.version or '?'}",
         ))
+
+        # Retention rule: keep only the most recent backup
+        if existing.id:
+            self.clean_old_backups(existing.id, keep_count=1)
 
         log.info("Updated AppImage: %s → %s", existing.name, dest)
         return InstallResult(
@@ -328,3 +358,24 @@ class AppImageBackend:
 
         log.info("Uninstalled AppImage: %s", app.name)
         return InstallResult(success=True)
+
+    def clean_old_backups(self, app_id: int, keep_count: int = 1) -> int:
+        """Remove older backups exceeding *keep_count*. Returns count deleted."""
+        versions = self._registry.get_versions(app_id)
+        with_backup = [v for v in versions if v.backup_path]
+        if len(with_backup) <= keep_count:
+            return 0
+
+        to_remove = with_backup[keep_count:]
+        deleted = 0
+        for v in to_remove:
+            if v.backup_path:
+                p = Path(v.backup_path)
+                if p.exists():
+                    try:
+                        p.unlink()
+                        deleted += 1
+                        log.info("Cleaned old backup: %s", p)
+                    except OSError:
+                        pass
+        return deleted

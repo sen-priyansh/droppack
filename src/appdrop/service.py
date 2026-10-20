@@ -198,3 +198,43 @@ class AppService:
     def get_version_history(self, app_id: int) -> list:
         """Return version history for an application."""
         return self._registry.get_versions(app_id)
+
+    def launch(self, app_id: int) -> tuple[bool, str | None]:
+        """Launch an installed application in the background."""
+        import shutil
+        import subprocess
+
+        app = self._registry.get_app(app_id)
+        if not app:
+            return False, "Application not found"
+
+        if app.format == "appimage" and app.install_path:
+            p = Path(app.install_path)
+            if not p.exists():
+                return False, f"Executable file missing: {p}"
+            try:
+                subprocess.Popen([str(p)], start_new_session=True)
+                return True, None
+            except OSError as exc:
+                return False, f"Failed to launch AppImage: {exc}"
+
+        if app.format == "deb":
+            gtk_launch = shutil.which("gtk-launch")
+            if gtk_launch:
+                try:
+                    subprocess.Popen([gtk_launch, app.name], start_new_session=True)
+                    return True, None
+                except OSError:
+                    pass
+
+            bin_path = shutil.which(app.name)
+            if bin_path:
+                try:
+                    subprocess.Popen([bin_path], start_new_session=True)
+                    return True, None
+                except OSError as exc:
+                    return False, f"Failed to execute {app.name}: {exc}"
+
+            return False, f"Cannot launch {app.name}: desktop launcher or binary not found"
+
+        return False, "Unsupported application format"

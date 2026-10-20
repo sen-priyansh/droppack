@@ -105,15 +105,22 @@ class ConfirmDialog(QDialog):
         layout.addWidget(buttons)
 
     def _make_item_row(self, item: QueueItem) -> QWidget:
+        container = QWidget()
+        v_layout = QVBoxLayout(container)
+        v_layout.setContentsMargins(16, 2, 8, 2)
+        v_layout.setSpacing(2)
+
         row = QWidget()
         row_layout = QHBoxLayout(row)
-        row_layout.setContentsMargins(16, 2, 8, 2)
+        row_layout.setContentsMargins(0, 0, 0, 0)
 
         action = QLabel(f"  •  {item.display_action}")
         action.setFixedWidth(80)
         row_layout.addWidget(action)
 
         name = QLabel(f"<b>{item.info.display_name}</b>")
+        if item.info.sha256:
+            name.setToolTip(f"SHA-256: {item.info.sha256}")
         row_layout.addWidget(name)
 
         version = QLabel(item.info.version or "")
@@ -121,7 +128,17 @@ class ConfirmDialog(QDialog):
         row_layout.addWidget(version)
 
         row_layout.addStretch()
-        return row
+        v_layout.addWidget(row)
+
+        if item.info.dependencies:
+            deps_text = ", ".join(item.info.dependencies[:4])
+            if len(item.info.dependencies) > 4:
+                deps_text += f" (+{len(item.info.dependencies) - 4} more)"
+            deps_label = QLabel(f"    Dependencies: {deps_text}")
+            deps_label.setStyleSheet("color: #78909C; font-size: 11px;")
+            v_layout.addWidget(deps_label)
+
+        return container
 
 
 class ErrorDialog(QDialog):

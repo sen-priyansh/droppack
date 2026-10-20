@@ -34,6 +34,7 @@ _COLUMNS = ("Name", "Format", "Version", "Architecture", "Status")
 class InstalledView(QWidget):
     """View displaying installed applications and management actions."""
 
+    launch_requested = Signal(int)     # app_id
     uninstall_requested = Signal(int)  # app_id
     rollback_requested = Signal(int)   # app_id
     refresh_requested = Signal()
@@ -77,6 +78,7 @@ class InstalledView(QWidget):
         )
         self._table.setAlternatingRowColors(True)
         self._table.itemSelectionChanged.connect(self._on_selection_changed)
+        self._table.cellDoubleClicked.connect(lambda r, c: self._on_launch())
         layout.addWidget(self._table)
 
         # Action bar at bottom
@@ -85,6 +87,11 @@ class InstalledView(QWidget):
         self._count_label = QLabel("0 applications")
         action_bar.addWidget(self._count_label)
         action_bar.addStretch()
+
+        self._launch_btn = QPushButton("Launch")
+        self._launch_btn.setEnabled(False)
+        self._launch_btn.clicked.connect(self._on_launch)
+        action_bar.addWidget(self._launch_btn)
 
         self._history_btn = QPushButton("View History")
         self._history_btn.setEnabled(False)
@@ -162,11 +169,13 @@ class InstalledView(QWidget):
     def _on_selection_changed(self) -> None:
         app = self._selected_app()
         if app is None:
+            self._launch_btn.setEnabled(False)
             self._history_btn.setEnabled(False)
             self._rollback_btn.setEnabled(False)
             self._uninstall_btn.setEnabled(False)
             return
 
+        self._launch_btn.setEnabled(True)
         self._history_btn.setEnabled(True)
         self._uninstall_btn.setEnabled(True)
 
@@ -181,6 +190,12 @@ class InstalledView(QWidget):
     # ------------------------------------------------------------------
     # User actions
     # ------------------------------------------------------------------
+
+    def _on_launch(self) -> None:
+        app = self._selected_app()
+        if not app or app.id is None:
+            return
+        self.launch_requested.emit(app.id)
 
     def _on_view_history(self) -> None:
         app = self._selected_app()

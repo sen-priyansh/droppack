@@ -122,6 +122,25 @@ def install_icon(
     return dest
 
 
+def install_icon_bytes(
+    data: bytes,
+    ext: str,
+    app_name: str,
+    *,
+    root_override: Path | None = None,
+) -> Path:
+    """Write raw icon bytes to the user's icon directory."""
+    dest_dir = icons_dir(root_override) / APP_NAME
+    dest_dir.mkdir(parents=True, exist_ok=True)
+
+    suffix = ext if ext.startswith(".") else f".{ext}"
+    dest = dest_dir / f"{_sanitise(app_name)}{suffix}"
+
+    dest.write_bytes(data)
+    log.info("Installed icon bytes: %s (%d bytes)", dest, len(data))
+    return dest
+
+
 def remove_icon(
     app_name: str,
     *,

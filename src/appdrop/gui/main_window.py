@@ -31,6 +31,8 @@ class MainWindow(QMainWindow):
     def __init__(
         self,
         service: AppService | None = None,
+        *,
+        initial_files: list[Path] | None = None,
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
@@ -39,6 +41,9 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(700, 500)
         self._setup_ui()
         self._connect_signals()
+
+        if initial_files:
+            self._on_files_dropped(initial_files)
 
     def _setup_ui(self) -> None:
         central = QWidget()
@@ -82,12 +87,20 @@ class MainWindow(QMainWindow):
         self._drop_zone.files_dropped.connect(self._on_files_dropped)
         self._queue_view.proceed_requested.connect(self._on_proceed)
         self._tabs.currentChanged.connect(self._on_tab_changed)
+        self._installed_view.launch_requested.connect(self._on_launch_app)
         self._installed_view.uninstall_requested.connect(self._on_uninstall_app)
         self._installed_view.rollback_requested.connect(self._on_rollback_app)
 
     def _on_tab_changed(self, index: int) -> None:
         if index == 1:
             self._installed_view.reload_data()
+
+    def _on_launch_app(self, app_id: int) -> None:
+        success, err = self._service.launch(app_id)
+        if success:
+            self._status_bar.showMessage("Application launched", 3000)
+        else:
+            ErrorDialog("Launch Error", "Could not launch application.", err, parent=self).exec()
 
     def _on_uninstall_app(self, app_id: int) -> None:
         try:

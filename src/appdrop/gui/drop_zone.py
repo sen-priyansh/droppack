@@ -7,7 +7,7 @@ from pathlib import Path
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QDragEnterEvent, QDragLeaveEvent, QDropEvent, QFont, QPainter
-from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QFileDialog, QLabel, QPushButton, QVBoxLayout, QWidget
 
 log = logging.getLogger(__name__)
 
@@ -15,10 +15,10 @@ _ACCEPTED_SUFFIXES = {".appimage", ".deb"}
 
 
 class DropZone(QWidget):
-    """Large drag-and-drop target area.
+    """Large drag-and-drop target area with file browser option.
 
     Emits :pyqtSignal:`files_dropped` with a list of local file paths
-    when the user drops supported files onto it.
+    when the user drops supported files onto it or selects them via dialog.
     """
 
     files_dropped = Signal(list)  # list[Path]
@@ -48,7 +48,23 @@ class DropZone(QWidget):
         self._text_label.setFont(text_font)
         layout.addWidget(self._text_label)
 
+        self._browse_btn = QPushButton("Browse Files…")
+        self._browse_btn.setFixedWidth(160)
+        self._browse_btn.clicked.connect(self._on_browse_clicked)
+        layout.addWidget(self._browse_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+
         self._update_style()
+
+    def _on_browse_clicked(self) -> None:
+        files, _ = QFileDialog.getOpenFileNames(
+            self,
+            "Select AppImage or Debian Packages",
+            str(Path.home()),
+            "Linux Packages (*.AppImage *.appimage *.deb);;All Files (*)",
+        )
+        if files:
+            paths = [Path(f) for f in files]
+            self.files_dropped.emit(paths)
 
     # ------------------------------------------------------------------
     # Drag-and-drop events

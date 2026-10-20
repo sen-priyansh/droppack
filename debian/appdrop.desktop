@@ -2,7 +2,7 @@
 Name=AppDrop
 GenericName=Package Manager
 Comment=Install and manage AppImage and Debian packages via drag-and-drop
-Exec=appdrop
+Exec=appdrop %F
 Icon=appdrop
 Terminal=false
 Type=Application

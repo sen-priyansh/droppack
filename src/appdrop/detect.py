@@ -7,6 +7,7 @@ magic bytes, then extracts available metadata **without executing** the file.
 from __future__ import annotations
 
 import enum
+import hashlib
 import logging
 import re
 import shutil
@@ -40,6 +41,10 @@ class PackageInfo:
     description: str | None = None
     architecture: str | None = None
     size_bytes: int | None = None
+    sha256: str | None = None
+    dependencies: list[str] = field(default_factory=list)
+    icon_bytes: bytes | None = None
+    icon_format: str | None = None
     raw_metadata: dict[str, str] = field(default_factory=dict)
     error: str | None = None
 
@@ -119,6 +124,16 @@ def detect(filepath: Path) -> PackageInfo:
     info.format = detect_format(filepath)
     info.size_bytes = filepath.stat().st_size
 
+    # Compute SHA-256 checksum safely
+    try:
+        h = hashlib.sha256()
+        with open(filepath, "rb") as f:
+            while chunk := f.read(65536):
+                h.update(chunk)
+        info.sha256 = h.hexdigest()
+    except OSError:
+        pass
+
     if info.format == PackageFormat.DEB:
         _extract_deb_metadata(info)
     elif info.format == PackageFormat.APPIMAGE:
@@ -180,6 +195,9 @@ def _parse_deb_control(info: PackageInfo, text: str) -> None:
     info.version = info.raw_metadata.get("Version")
     info.architecture = info.raw_metadata.get("Architecture")
     info.description = info.raw_metadata.get("Description")
+    deps_raw = info.raw_metadata.get("Depends", "")
+    if deps_raw:
+        info.dependencies = [d.strip() for d in deps_raw.split(",") if d.strip()]
 
 
 # ---------------------------------------------------------------------------
@@ -231,9 +249,11 @@ def _extract_appimage_desktop_entry(info: PackageInfo, unsquashfs: str) -> None:
         _parse_appimage_filename(info)
         return
 
+    list_output = result.stdout
+
     # Find .desktop files in the listing
     desktop_files = []
-    for line in result.stdout.splitlines():
+    for line in list_output.splitlines():
         stripped = line.strip()
         if stripped.endswith(".desktop"):
             # Extract the path part (unsquashfs -l output format: "squashfs-root/file.desktop")
@@ -281,6 +301,32 @@ def _extract_appimage_desktop_entry(info: PackageInfo, unsquashfs: str) -> None:
     # If we still have no name, fall back to filename
     if not info.name:
         _parse_appimage_filename(info)
+
+    # Try extracting the icon (.DirIcon or root .png / .svg)
+    icon_target = None
+    for line in list_output.splitlines():
+        stripped = line.strip()
+        if stripped.endswith(".DirIcon"):
+            icon_target = stripped
+            break
+        if stripped.endswith(".png") or stripped.endswith(".svg"):
+            parts = stripped.replace("squashfs-root/", "").split("/")
+            if len(parts) == 1:
+                icon_target = stripped
+
+    if icon_target:
+        icon_rel = icon_target.split("squashfs-root/", 1)[-1] if "squashfs-root/" in icon_target else icon_target
+        try:
+            icon_res = subprocess.run(
+                [unsquashfs, "-o", str(offset), "-cat", str(info.filepath), icon_rel],
+                capture_output=True,
+                timeout=15,
+            )
+            if icon_res.returncode == 0 and icon_res.stdout:
+                info.icon_bytes = icon_res.stdout
+                info.icon_format = "svg" if icon_target.endswith(".svg") else "png"
+        except (subprocess.TimeoutExpired, OSError):
+            pass
 
 
 def _find_squashfs_offset(filepath: Path) -> int | None:
