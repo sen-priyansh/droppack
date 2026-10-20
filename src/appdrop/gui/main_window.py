@@ -127,29 +127,18 @@ class MainWindow(QMainWindow):
             self._status_bar.showMessage("Operation cancelled")
             return
 
-        # Execute (Milestone 3+ will actually install)
-        self._execute_items(actionable)
+        # Execute confirmed operations
+        self._execute_items(actionable, allow_downgrades=True)
 
-    def _execute_items(self, items: list) -> None:
+    def _execute_items(self, items: list, *, allow_downgrades: bool = False) -> None:
         """Execute installation/update for confirmed items."""
         try:
-            results = self._service.execute_queue(items)
+            results = self._service.execute_queue(items, allow_downgrades=allow_downgrades)
             self._status_bar.showMessage("Operations completed")
             # Update queue view with results
             for i, item in enumerate(results):
                 status = "✓ Done" if not item.info.error else f"✗ {item.info.error}"
                 self._queue_view.update_item_status(i, status)
-        except NotImplementedError:
-            self._status_bar.showMessage(
-                "Installation will be available in a future milestone"
-            )
-            ErrorDialog(
-                "Not Yet Implemented",
-                "Package installation is not yet available.\n\n"
-                "Detection and queuing are working — installation "
-                "will be implemented in Milestone 3.",
-                parent=self,
-            ).exec()
         except Exception as exc:
             log.exception("Error executing queue")
             ErrorDialog(

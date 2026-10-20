@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -118,12 +119,61 @@ class TestExecuteQueue:
         installed = service.list_installed()
         assert len(installed) >= 1
 
-    def test_deb_not_yet_implemented(self, service: AppService, tmp_path: Path):
-        src = _make_deb(tmp_path / "pkg.deb")
-        items = service.process_files([src])
-        results = service.execute_queue(items)
-        assert results[0].info.error is not None
-        assert "not yet implemented" in results[0].info.error.lower()
+    def test_deb_install_executes_backend(self, tmp_root: Path, tmp_path: Path):
+        deb_file = _make_deb(tmp_path / "pkg_1.0_all.deb", name="pkg", version="1.0")
+
+        executed = []
+
+        def mock_runner(cmd: list[str]) -> subprocess.CompletedProcess:
+            executed.append(cmd)
+            return subprocess.CompletedProcess(cmd, returncode=0, stdout="", stderr="")
+
+        def mock_query(cmd: list[str]) -> subprocess.CompletedProcess:
+            if "dpkg-query" in cmd[0] and executed:
+                return subprocess.CompletedProcess(
+                    cmd, returncode=0, stdout="install ok installed\t1.0\tall\n", stderr=""
+                )
+            return subprocess.CompletedProcess(cmd, returncode=1, stdout="", stderr="")
+
+        svc = AppService(
+            root_override=tmp_root,
+            deb_runner=mock_runner,
+            deb_query_runner=mock_query,
+        )
+        try:
+            items = svc.process_files([deb_file])
+            assert items[0].action == DropAction.INSTALL
+            results = svc.execute_queue(items)
+            assert results[0].info.error is None
+            assert len(executed) == 1
+            assert "apt-get" in executed[0]
+            installed = svc.list_installed()
+            assert len(installed) == 1
+            assert installed[0].name == "pkg"
+            assert installed[0].format == "deb"
+        finally:
+            svc.close()
+
+    def test_deb_downgrade_detected(self, tmp_root: Path, tmp_path: Path):
+        deb_file = _make_deb(tmp_path / "pkg_1.0_all.deb", name="pkg", version="1.0")
+
+        # Query says version 2.0 is installed
+        def mock_query(cmd: list[str]) -> subprocess.CompletedProcess:
+            if "dpkg-query" in cmd[0]:
+                return subprocess.CompletedProcess(
+                    cmd, returncode=0, stdout="install ok installed\t2.0\tall\n", stderr=""
+                )
+            if "dpkg" in cmd[0] and "--compare-versions" in cmd:
+                return subprocess.CompletedProcess(cmd, returncode=0, stdout="", stderr="")
+            return subprocess.CompletedProcess(cmd, returncode=1, stdout="", stderr="")
+
+        svc = AppService(root_override=tmp_root, deb_query_runner=mock_query)
+        try:
+            items = svc.process_files([deb_file])
+            assert items[0].action == DropAction.DOWNGRADE
+            assert items[0].existing_version == "2.0"
+        finally:
+            svc.close()
 
 
 class TestManagement:

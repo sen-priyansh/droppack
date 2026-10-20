@@ -84,6 +84,17 @@ class ConfirmDialog(QDialog):
             warning.setWordWrap(True)
             layout.addWidget(warning)
 
+        # Warning for downgrades
+        has_downgrades = any(getattr(i, "action", None) and i.action.name == "DOWNGRADE" for i in self._items)
+        if has_downgrades:
+            dw_warning = QLabel(
+                "⚠ WARNING: One or more packages will be DOWNGRADED to an older version.\n"
+                "Downgrading packages can lead to system instability."
+            )
+            dw_warning.setStyleSheet("color: #C62828; font-weight: bold; background: #FFEBEE; padding: 8px; border-radius: 4px;")
+            dw_warning.setWordWrap(True)
+            layout.addWidget(dw_warning)
+
         # Buttons
         buttons = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel

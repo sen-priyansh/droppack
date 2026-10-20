@@ -45,8 +45,14 @@ class IdentityMatch:
 class IdentityResolver:
     """Resolve whether a dropped file matches a managed installation."""
 
-    def __init__(self, registry: Registry) -> None:
+    def __init__(
+        self,
+        registry: Registry,
+        *,
+        deb_backend: object | None = None,
+    ) -> None:
         self._registry = registry
+        self._deb_backend = deb_backend
 
     def resolve(self, info: PackageInfo) -> IdentityMatch:
         """Find the best match for *info* among installed applications.
@@ -60,7 +66,7 @@ class IdentityResolver:
 
         fmt = _format_key(info.format)
 
-        # 1. Exact name + format match
+        # 1. Exact name + format match in registry
         exact = self._registry.find_app(info.name, fmt)
         if exact:
             return IdentityMatch(
@@ -69,7 +75,24 @@ class IdentityResolver:
                 reason=f"Exact name match: {info.name}",
             )
 
-        # 2. Normalised name match
+        # 2. For Debian packages, also check host system if not in registry
+        if fmt == "deb" and self._deb_backend is not None and hasattr(self._deb_backend, "query_system_package"):
+            sys_pkg = self._deb_backend.query_system_package(info.name)
+            if sys_pkg and sys_pkg.is_installed:
+                return IdentityMatch(
+                    existing=AppRecord(
+                        name=sys_pkg.name,
+                        display_name=sys_pkg.name,
+                        format="deb",
+                        version=sys_pkg.version,
+                        architecture=sys_pkg.architecture,
+                        status="installed",
+                    ),
+                    confidence=Confidence.HIGH,
+                    reason=f"System package {sys_pkg.name} ({sys_pkg.version}) is installed",
+                )
+
+        # 3. Normalised name match
         normalised = _normalise(info.name)
         for app in self._registry.list_apps():
             if app.format != fmt:
@@ -81,7 +104,7 @@ class IdentityResolver:
                     reason=f"Normalised name match: {_normalise(info.name)} ≈ {_normalise(app.name)}",
                 )
 
-        # 3. Display name match (looser)
+        # 4. Display name match (looser)
         for app in self._registry.list_apps():
             if app.format != fmt:
                 continue
